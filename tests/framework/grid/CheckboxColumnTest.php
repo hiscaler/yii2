@@ -7,13 +7,11 @@
 
 namespace yiiunit\framework\grid;
 
+use Yii;
 use yii\data\ArrayDataProvider;
 use yii\grid\CheckboxColumn;
 use yii\grid\GridView;
 use yii\helpers\FileHelper;
-use yii\i18n\Formatter;
-use yii\web\View;
-use Yii;
 use yiiunit\framework\i18n\IntlTestHelper;
 use yiiunit\TestCase;
 
@@ -56,19 +54,20 @@ class CheckboxColumnTest extends TestCase
 
     public function testInputValue()
     {
-        $column = new CheckboxColumn();
+        $column = new CheckboxColumn(['grid' => $this->getGrid()]);
         $this->assertContains('value="1"', $column->renderDataCell([], 1, 0));
         $this->assertContains('value="42"', $column->renderDataCell([], 42, 0));
         $this->assertContains('value="[1,42]"', $column->renderDataCell([], [1, 42], 0));
 
-        $column = new CheckboxColumn(['checkboxOptions' => ['value' => 42]]);
+        $column = new CheckboxColumn(['checkboxOptions' => ['value' => 42], 'grid' => $this->getGrid()]);
         $this->assertNotContains('value="1"', $column->renderDataCell([], 1, 0));
         $this->assertContains('value="42"', $column->renderDataCell([], 1, 0));
 
         $column = new CheckboxColumn([
             'checkboxOptions' => function ($model, $key, $index, $column) {
                 return [];
-            }
+            },
+            'grid' => $this->getGrid(),
         ]);
         $this->assertContains('value="1"', $column->renderDataCell([], 1, 0));
         $this->assertContains('value="42"', $column->renderDataCell([], 42, 0));
@@ -77,7 +76,8 @@ class CheckboxColumnTest extends TestCase
         $column = new CheckboxColumn([
             'checkboxOptions' => function ($model, $key, $index, $column) {
                 return ['value' => 42];
-            }
+            },
+            'grid' => $this->getGrid(),
         ]);
         $this->assertNotContains('value="1"', $column->renderDataCell([], 1, 0));
         $this->assertContains('value="42"', $column->renderDataCell([], 1, 0));

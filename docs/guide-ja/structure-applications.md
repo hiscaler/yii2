@@ -16,11 +16,11 @@
 [エントリスクリプト](structure-entry-scripts.md) は、アプリケーションを作成するときに、下記のように、[構成情報](concept-configurations.md) を読み込んで、それをアプリケーションに適用します。
 
 ```php
-require(__DIR__ . '/../vendor/autoload.php');
-require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 
 // アプリケーションの構成情報を読み込む
-$config = require(__DIR__ . '/../config/web.php');
+$config = require __DIR__ . '/../config/web.php';
 
 // アプリケーションのインスタンスを作成し、構成情報を適用する
 (new yii\web\Application($config))->run();
@@ -182,6 +182,8 @@ if (YII_ENV_DEV) {
 ]
 ```
 
+> Info: このプロパティを有効にすると、開発環境でデバッグパネルが動作しなくなります。
+
 
 #### [[yii\base\Application::components|components]] <span id="components"></span>
 
@@ -223,12 +225,10 @@ if (YII_ENV_DEV) {
 ```php
 [
     'controllerMap' => [
-        [
-            'account' => 'app\controllers\UserController',
-            'article' => [
-                'class' => 'app\controllers\PostController',
-                'enableCsrfValidation' => false,
-            ],
+        'account' => 'app\controllers\UserController',
+        'article' => [
+            'class' => 'app\controllers\PostController',
+            'enableCsrfValidation' => false,
         ],
     ],
 ]

@@ -6,7 +6,7 @@ Yii はデータを表示するために使うことが出来る一連の [ウ�
 それに対して、[ListView](#list-view) と [GridView](#grid-view) は、複数のデータレコードをリストまたはテーブルで表示することが出来るもので、ページネーション、並べ替え、フィルタリングなどの機能を提供するものです。
 
 
-DetailView
+DetailView <a name="detail-view"></a>
 ----------
 
 DetailView は単一のデータ [[yii\widgets\DetailView::$model|モデル]] の詳細を表示します。
@@ -18,24 +18,47 @@ DetailView は [[yii\widgets\DetailView::$attributes]] プロパティを使っ�
 利用できるフォーマットのオプションについては、[フォーマッタの節](output-formatting.md) を参照してください。
 
 次に DetailView の典型的な用例を示します。
- 
+
 ```php
 echo DetailView::widget([
     'model' => $model,
     'attributes' => [
-        'title',               // title 属性 (平文テキストで)
-        'description:html',    // description 属性は HTML としてフォーマットされる
-        [                      // モデルの所有者の名前
+        'title',                                           // title 属性 (平文テキストで)
+        'description:html',                                // description 属性は HTML としてフォーマットされる
+        [                                                  // モデルの所有者の名前
             'label' => '所有者',
             'value' => $model->owner->name,
+            'contentOptions' => ['class' => 'bg-red'],     // 値のタグをカスタマイズする HTML 属性
+            'captionOptions' => ['tooltip' => 'Tooltip'],  // ラベルのタグをカスタマイズする HTML 属性
         ],
-        'created_at:datetime', // 作成日は datetime としてフォーマットされる
+        'created_at:datetime',                             // 作成日時は datetime としてフォーマットされる
     ],
 ]);
 ```
 
+[[yii\widgets\GridView|GridView]] が一組のモデルを処理するのとは異なって、
+[[yii\widgets\DetailView|DetailView]] は一つのモデルしか処理しないということを覚えておいてください。
+表示すべきモデルはビューの変数としてアクセスできる `$model` 一つだけですから、たいていの場合、クロージャを使用する必要はありません。
 
-ListView
+しかし、クロージャが役に立つ場合もあります。例えば、`visible` が指定されており、それが `false` と評価される場合には
+`value` の計算を避けたい場合です。
+
+```php
+echo DetailView::widget([
+    'model' => $model,
+    'attributes' => [
+        [
+            'attribute' => 'owner',
+            'value' => function ($model) {
+                return $model->owner->name;
+            },
+            'visible' => \Yii::$app->user->can('posts.owner.view'),
+        ],
+    ],
+]);
+```
+
+ListView <a name="list-view"></a>
 --------
 
 [[yii\widgets\ListView|ListView]] ウィジェットは、[データプロバイダ](output-data-providers.md) からのデータを表示するのに使用されます。
@@ -70,7 +93,7 @@ use yii\helpers\HtmlPurifier;
 ?>
 <div class="post">
     <h2><?= Html::encode($model->title) ?></h2>
-    
+
     <?= HtmlPurifier::process($model->text) ?>    
 </div>
 ```
@@ -102,7 +125,7 @@ echo ListView::widget([
 GridView <a name="grid-view"></a>
 --------
 
-データグリッドすなわち [[yii\widgets\GridView|GridView]] は Yii の最も強力なウィジェットの一つです。
+データグリッドすなわち [[yii\grid\GridView|GridView]] は Yii の最も強力なウィジェットの一つです。
 これは、システムの管理セクションを素速く作らねばならない時に、この上なく便利なものです。
 このウィジェットは [データプロバイダ](output-data-providers.md) からデータを受けて、テーブルの形式で、行ごとに一組の [[yii\grid\GridView::columns|カラム]] を使ってデータを表示します。
 
@@ -215,7 +238,7 @@ echo GridView::widget([
             'format' => ['date', 'php:Y-m-d']
         ],
     ],
-]); 
+]);
 ```
 
 上記において、`text` は [[\yii\i18n\Formatter::asText()]] に対応し、カラムの値が最初の引数として渡されます。
@@ -267,7 +290,7 @@ echo GridView::widget([
   コールバックのシグニチャは [[yii\grid\ActionColumn::createUrl()]] のそれと同じでなければなりません。
   このプロパティが設定されていないときは、ボタンの URL は [[yii\grid\ActionColumn::createUrl()]] を使って生成されます。
 - [[yii\grid\ActionColumn::visibleButtons|visibleButtons]] は、各ボタンの可視性の条件を定義する配列です。
-  配列のキーはボタンの名前 (波括弧を除く) であり、値は真偽値 true/false または無名関数です。
+  配列のキーはボタンの名前 (波括弧を除く) であり、値は真偽値 `true`/`false` または無名関数です。
   ボタンの名前がこの配列の中で指定されていない場合は、デフォルトで、ボタンが表示されます。
   コールバックは次のシグニチャを使わなければなりません。
 
@@ -338,7 +361,8 @@ echo GridView::widget([
 データをフィルタリングするためには、GridView は検索基準を表す [モデル](structure-models.md) を必要とします。
 検索基準は、通常は、グリッドビューのテーブルのフィルタのフィールドから取得されます。
 [アクティブレコード](db-active-record.md) を使用している場合は、必要な機能を提供する検索用のモデルクラスを作成するのが一般的なプラクティスです (あなたに代って [Gii](start-gii.md) が生成してくれます)。
-このクラスは、検索のためのバリデーション規則を定義し、検索基準に従って修正されたクエリを持つデータプロバイダを返す `search()` メソッドを提供するものです。
+このクラスが、グリッドビューのテーブルに表示されるフィルタコントロールのための検証規則を定義し、
+検索基準に従って修正されたクエリを持つデータプロバイダを返す `search()` メソッドを提供します。
 
 `Post` モデルに対して検索機能を追加するために、次の例のようにして、`PostSearch` モデルを作成することが出来ます。
 
@@ -391,6 +415,9 @@ class PostSearch extends Post
 }
 
 ```
+
+> Tip: フィルタのクエリを構築する方法を学ぶためには、[クエリビルダ](db-query-builder.md)、
+> 中でも特に [フィルタ条件](db-query-builder.md#filter-conditions) を参照してください。
 
 この `search()` メソッドをコントローラで使用して、GridView のためのデータプロバイダを取得することが出来ます。
 
@@ -635,7 +662,7 @@ class UserView extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function attributeLabels()
+    public function attributeLabels()
     {
         return [
             // ここで属性のラベルを定義
@@ -687,10 +714,39 @@ echo GridView::widget([
 
 ### GridView を Pjax とともに使う
 
-> Note: このセクションはまだ執筆中です。
->
+[[yii\widgets\Pjax|Pjax]] ウィジェットを使うと、ページ全体をリロードせずに、ページの一部分だけを更新することが出来ます。
+これを使うと、フィルタを使うときに、[[yii\grid\GridView|GridView]] の中身だけを更新することが出来ます。
 
-(内容未定)
+```php
+use yii\widgets\Pjax;
+use yii\grid\GridView;
+
+Pjax::begin([
+    // PJax のオプション
+]);
+    Gridview::widget([
+        // GridView のオプション
+    ]);
+Pjax::end();
+```
+
+[[yii\widgets\Pjax|Pjax]] は、[[yii\widgets\Pjax::$linkSelector|Pjax::$linkSelector]] の指定に従って、リンクに対しても動作します。
+これは [[yii\grid\ActionColumn|ActionColumn]] を使う場合には問題となり得ます。
+この問題を防止するためには、[[yii\grid\ActionColumn::$buttons|ActionColumn::$buttons]]
+プロパティを編集して `data-pjax="0"` という HTML 属性を追加します。
+
+#### Gii における Pjax を伴う GridView
+
+バージョン 2.0.5 以降、[Gii](start-gii.md) では `$enablePjax` というオプションがウェブインターフェイスまたはコマンドラインで使用可能になっています。
+
+```php
+yii gii/crud --controllerClass="backend\\controllers\PostController" \
+  --modelClass="common\\models\\Post" \
+  --enablePjax=1
+```
+
+これによって、[[yii\grid\GridView|GridView]] または [[yii\widgets\ListView|ListView]]
+を囲む [[yii\widgets\Pjax|Pjax]] ウィジェットが生成されます。
 
 
 さらに読むべき文書

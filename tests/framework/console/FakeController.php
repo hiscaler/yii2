@@ -8,6 +8,7 @@
 namespace yiiunit\framework\console;
 
 use yii\console\Controller;
+use yii\console\Response;
 
 /**
  * @author Misbahul D Munir <misbahuldmunir@gmail.com>
@@ -21,12 +22,22 @@ class FakeController extends Controller
 
     public $alias;
 
+    private static $_wasActionIndexCalled = false;
+
+    public static function getWasActionIndexCalled()
+    {
+        $wasCalled = self::$_wasActionIndexCalled;
+        self::$_wasActionIndexCalled = false;
+
+        return $wasCalled;
+    }
+
     public function options($actionID)
     {
         return array_merge(parent::options($actionID), [
             'test',
             'testArray',
-            'alias'
+            'alias',
         ]);
     }
 
@@ -35,8 +46,13 @@ class FakeController extends Controller
         return [
             't' => 'test',
             'ta' => 'testArray',
-            'a' => 'alias'
+            'a' => 'alias',
         ];
+    }
+
+    public function actionIndex()
+    {
+        self::$_wasActionIndexCalled = true;
     }
 
     public function actionAksi1($fromParam, $other = 'default')
@@ -66,5 +82,22 @@ class FakeController extends Controller
     public function actionAksi6()
     {
         return $this->testArray;
+    }
+
+    public function actionWithComplexTypeHint(self $typedArgument, $simpleArgument)
+    {
+        return $simpleArgument;
+    }
+
+    public function actionStatus($status = 0)
+    {
+        return $status;
+    }
+
+    public function actionResponse($status = 0)
+    {
+        $response = new Response();
+        $response->exitStatus = (int) $status;
+        return $response;
     }
 }

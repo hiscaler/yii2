@@ -69,10 +69,10 @@ yii migrate/up 5 --migrationTable=migrations
 
 defined('YII_DEBUG') or define('YII_DEBUG', true);
 
-require(__DIR__ . '/vendor/autoload.php');
-require(__DIR__ . '/vendor/yiisoft/yii2/Yii.php');
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/yiisoft/yii2/Yii.php';
 
-$config = require(__DIR__ . '/config/console.php');
+$config = require __DIR__ . '/config/console.php';
 
 $application = new yii\console\Application($config);
 $exitCode = $application->run();
@@ -126,7 +126,7 @@ exit($exitCode);
 
 ### オプションのエイリアス
 
-バージョン 2.0.8 以降、コンソールコマンドは、コマンドにエイリアスを追加するための [[yii\console\Controller::optionAliases()]] メソッドを提供しています。
+バージョン 2.0.8 以降、コンソールコマンドは、オプションにエイリアスを追加するための [[yii\console\Controller::optionAliases()]] メソッドを提供しています。
 
 エイリアスを定義するためには、コントローラで [[yii\console\Controller::optionAliases()]] をオーバーライドします。
 例えば、
@@ -140,7 +140,7 @@ class HelloController extends Controller
 {
     public $message;
     
-    public function options()
+    public function options($actionID)
     {
         return ['message'];
     }
@@ -152,7 +152,7 @@ class HelloController extends Controller
     
     public function actionIndex()
     {
-        echo $message . "\n";
+        echo $this->message . "\n";
     }
 }
 ```
@@ -160,7 +160,7 @@ class HelloController extends Controller
 これで、次の構文を使ってコマンドを走らせることが出来るようになります。
 
 ```
-./yii hello -m=hola
+./yii hello -m=hello
 ```
 
 ### 引数

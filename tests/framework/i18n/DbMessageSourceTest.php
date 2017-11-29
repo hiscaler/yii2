@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 
 namespace yiiunit\framework\i18n;
 
@@ -11,6 +16,7 @@ use yiiunit\framework\console\controllers\EchoMigrateController;
 
 /**
  * @group i18n
+ * @group db
  * @group mysql
  * @author Dmitry Naumenko <d.naumenko.a@gmail.com>
  * @since 2.0.7
@@ -29,11 +35,17 @@ class DbMessageSourceTest extends I18NTest
     {
         $this->i18n = new I18N([
             'translations' => [
-                'test' => new DbMessageSource([
+                'test' => [
+                    'class' => $this->getMessageSourceClass(),
                     'db' => static::$db,
-                ])
-            ]
+                ],
+            ],
         ]);
+    }
+
+    private function getMessageSourceClass()
+    {
+        return DbMessageSource::className();
     }
 
     protected static function runConsoleAction($route, $params = [])
@@ -53,7 +65,7 @@ class DbMessageSourceTest extends I18NTest
 
         ob_start();
         $result = Yii::$app->runAction($route, $params);
-        echo "Result is " . $result;
+        echo 'Result is ' . $result;
         if ($result !== \yii\console\Controller::EXIT_CODE_NORMAL) {
             ob_end_flush();
         } else {
@@ -112,7 +124,7 @@ class DbMessageSourceTest extends I18NTest
     public static function getConnection()
     {
         if (static::$db == null) {
-            $db = new Connection;
+            $db = new Connection();
             $db->dsn = static::$database['dsn'];
             if (isset(static::$database['username'])) {
                 $db->username = static::$database['username'];
@@ -126,6 +138,7 @@ class DbMessageSourceTest extends I18NTest
             }
             static::$db = $db;
         }
+
         return static::$db;
     }
 
@@ -152,5 +165,11 @@ class DbMessageSourceTest extends I18NTest
         $this->assertEquals('TRANSLATION MISSING HERE!', $this->i18n->translate('test', 'New missing translation message.', [], 'de-DE'));
         $this->assertEquals('Hallo Welt!', $this->i18n->translate('test', 'Hello world!', [], 'de-DE'));
         Event::off(DbMessageSource::className(), DbMessageSource::EVENT_MISSING_TRANSLATION);
+    }
+
+
+    public function testIssue11429($sourceLanguage = null)
+    {
+        $this->markTestSkipped('DbMessageSource does not produce any errors when messages file is missing.');
     }
 }
