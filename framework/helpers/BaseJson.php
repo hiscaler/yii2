@@ -167,9 +167,7 @@ class BaseJson
             if ($data === []) {
                 return new \stdClass();
             }
-        }
-
-        if (is_array($data)) {
+        } elseif (is_array($data)) {
             foreach ($data as $key => $value) {
                 if (is_array($value) || is_object($value)) {
                     $data[$key] = static::processData($value, $expressions, $expPrefix);
